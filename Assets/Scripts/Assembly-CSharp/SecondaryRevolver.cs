@@ -116,24 +116,33 @@ public class SecondaryRevolver : MonoBehaviour
 	}
 
 	public void Shoot()
-	{
-		bulletForce = 5000;
-		Physics.Raycast(camObj.transform.position, camObj.transform.forward, out hit, float.PositiveInfinity, rev.ignoreEnemyTrigger);
-		shotHitPoint = hit.point;
-		Object.Instantiate(secBeamPoint, gunBarrel.transform.position, gunBarrel.transform.rotation);
-		Object.Instantiate(secHitParticle, hit.point, base.transform.rotation);
-		shootReady = false;
-		shootCharge = 0f;
-		currentGunShot = Random.Range(0, rev.gunShots.Length);
-		gunAud.clip = rev.gunShots[currentGunShot];
-		gunAud.volume = 0.5f;
-		gunAud.pitch = Random.Range(0.95f, 1.05f);
-		gunAud.Play();
-		cam.fieldOfView = (rev.recoilFOV - cam.fieldOfView) / 2f + cam.fieldOfView;
-		Vector3 localPosition = new Vector3(rev.kickBackPos.localPosition.x * -1f, rev.kickBackPos.localPosition.y, rev.kickBackPos.localPosition.z);
-		base.transform.localPosition = localPosition;
-		base.transform.localRotation = rev.kickBackPos.localRotation;
-	}
+{
+    bulletForce = 5000;
+    Physics.Raycast(camObj.transform.position, camObj.transform.forward, out hit, float.PositiveInfinity, rev.ignoreEnemyTrigger);
+    shotHitPoint = hit.point;
+    Object.Instantiate(secBeamPoint, gunBarrel.transform.position, gunBarrel.transform.rotation);
+    
+    // Spawn 40 coins instead of 1
+    for (int i = 0; i < 40; i++)
+    {
+        Vector3 spreadOffset = Random.insideUnitSphere * 0.5f; // Adjust spread amount
+        Object.Instantiate(secHitParticle, hit.point + spreadOffset, base.transform.rotation);
+    }
+    
+    // Keep ammo at max (infinite)
+    shootReady = true;
+    shootCharge = 100f;
+    
+    currentGunShot = Random.Range(0, rev.gunShots.Length);
+    gunAud.clip = rev.gunShots[currentGunShot];
+    gunAud.volume = 0.5f;
+    gunAud.pitch = Random.Range(0.95f, 1.05f);
+    gunAud.Play();
+    cam.fieldOfView = (rev.recoilFOV - cam.fieldOfView) / 2f + cam.fieldOfView;
+    Vector3 localPosition = new Vector3(rev.kickBackPos.localPosition.x * -1f, rev.kickBackPos.localPosition.y, rev.kickBackPos.localPosition.z);
+    base.transform.localPosition = localPosition;
+    base.transform.localRotation = rev.kickBackPos.localRotation;
+}
 
 	private void ReadyToShoot()
 	{
